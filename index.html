@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星财生命数字 | StellarCai Numerology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── TOKENS ── */
+:root{
+  --navy:#050B14; --navy2:#0B132B;
+  --gold:#D4AF37; --gold2:#C5A059; --cream:#F3E5AB;
+  --crimson:#E63946;
+}
+
+body{
+  background-color:var(--navy);
+  background-image:radial-gradient(ellipse at 30% 0%,#0c1f3a 0%,var(--navy) 65%);
+  color:var(--cream);
+  font-family:'Plus Jakarta Sans',-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.7)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-ring{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.55;transform:scale(1.1)}}
+@keyframes gold-glow{0%,100%{filter:drop-shadow(0 0 4px rgba(212,175,55,.4))}50%{filter:drop-shadow(0 0 18px rgba(212,175,55,.95))}}
+@keyframes gold-glow2{0%,100%{filter:drop-shadow(0 0 4px rgba(212,175,55,.3))}50%{filter:drop-shadow(0 0 18px rgba(212,175,55,.9))}}
+@keyframes crim-glow{0%,100%{filter:drop-shadow(0 0 6px rgba(230,57,70,.5))}50%{filter:drop-shadow(0 0 24px rgba(230,57,70,.95))}}
+@keyframes tab-shine{0%,100%{text-shadow:0 0 8px rgba(212,175,55,.35)}50%{text-shadow:0 0 20px rgba(212,175,55,.85),0 0 40px rgba(212,175,55,.25)}}
+@keyframes bar-grow{from{width:0}}
+@keyframes scan-move{from{background-position:0 0}to{background-position:0 80px}}
+
+/* ── SVG ── */
+.ct  {font-family:'Noto Serif SC',serif;font-size:28px;font-weight:600;fill:var(--cream);dominant-baseline:central;text-anchor:middle}
+.ctlg{font-family:'Noto Serif SC',serif;font-size:34px;font-weight:900;fill:var(--cream);dominant-baseline:central;text-anchor:middle}
+.ctr {font-family:'Noto Serif SC',serif;font-size:44px;font-weight:900;fill:#fff;dominant-baseline:central;text-anchor:middle}
+.cl  {stroke:var(--gold);stroke-width:1.5;fill:none}
+.cls {stroke:rgba(212,175,55,.22);stroke-width:1;fill:none}
+.o-r1{transform-origin:400px 420px;animation:pulse-ring 3s ease-in-out infinite}
+.o-r2{transform-origin:400px 420px;animation:pulse-ring 3s ease-in-out .9s infinite}
+.mn1 {animation:gold-glow  4s ease-in-out infinite}
+.mn2 {animation:gold-glow2 4s ease-in-out 1.3s infinite}
+.og  {animation:crim-glow  2.8s ease-in-out infinite}
+
+/* ── MISC ── */
+::-webkit-scrollbar{height:2px;width:4px}
+::-webkit-scrollbar-thumb{background:rgba(212,175,55,.4);border-radius:2px}
+::selection{background:var(--gold);color:var(--navy)}
+
+/* ── PANELS ── */
+.panel{
+  background:linear-gradient(145deg,#0e1935 0%,#080f21 100%);
+  border:1px solid rgba(212,175,55,.18);
+  border-top:2px solid rgba(212,175,55,.42);
+  border-radius:.75rem;
+  box-shadow:0 25px 70px -15px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.025),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.panel-fatal{
+  background:linear-gradient(145deg,#130a0d 0%,#090509 100%);
+  border:1px solid rgba(230,57,70,.28);
+  border-top:2px solid rgba(230,57,70,.55);
+  border-radius:.75rem;
+  box-shadow:0 25px 70px -15px rgba(0,0,0,.85),0 0 40px -20px rgba(230,57,70,.3);
+  position:relative;overflow:hidden;
+}
+.panel-fatal::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 4px,rgba(230,57,70,.012) 4px,rgba(230,57,70,.012) 5px);
+  animation:scan-move 6s linear infinite;
+}
+.panel-yearly{
+  background:linear-gradient(145deg,#0d1530 0%,#070e1a 100%);
+  border:1px solid rgba(212,175,55,.18);
+  border-top:3px solid var(--gold);
+  border-radius:.75rem;
+  box-shadow:0 25px 70px -15px rgba(0,0,0,.85),0 0 40px -20px rgba(212,175,55,.2);
+}
+
+/* ── APP ── */
+.app{min-height:100vh;padding-bottom:5rem;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+
+/* ── HEADER ── */
+.hdr{
+  width:100%;
+  background:rgba(5,11,20,.92);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(212,175,55,.2);
+  padding:1.25rem 1.5rem;margin-bottom:2.5rem;
+  position:sticky;top:0;z-index:30;
+  box-shadow:0 8px 32px rgba(0,0,0,.6),0 1px 0 rgba(212,175,55,.1);
+}
+.hdr-inner{max-width:72rem;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem}
+.hdr-left {display:flex;align-items:center;gap:1.25rem}
+.hdr-right{display:flex;align-items:center;gap:1.5rem}
+.logo-fb{height:4rem;width:4rem;flex-shrink:0;border:1.5px solid rgba(212,175,55,.6);border-radius:6px;background:var(--navy2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(212,175,55,.2),inset 0 0 20px rgba(212,175,55,.05)}
+.logo-char{font-family:'Noto Serif SC',serif;color:var(--cream);font-size:1.25rem;font-weight:700;line-height:1.15}
+.site-title{font-family:'Noto Serif SC',serif;font-size:1.05rem;color:var(--cream);text-transform:uppercase;font-weight:700;letter-spacing:.22em;text-shadow:0 0 30px rgba(212,175,55,.3)}
+.dob-wrap{display:flex;align-items:center;background:rgba(11,19,43,.8);border:1px solid rgba(212,175,55,.3);padding:.5rem 1rem;border-radius:.5rem;gap:.75rem}
+.dob-lbl {font-size:.62rem;letter-spacing:.12em;color:var(--gold2);font-weight:600;text-transform:uppercase;white-space:nowrap}
+.dob-inp {background:transparent;border:none;border-bottom:1.5px solid rgba(212,175,55,.35);color:var(--cream);font-family:'Noto Serif SC',serif;font-size:1.05rem;text-align:center;letter-spacing:.18em;width:7.5rem;padding-bottom:2px;outline:none;transition:border-color .3s}
+.dob-inp:focus{border-bottom-color:var(--gold)}
+.lang-btn{font-size:.65rem;font-weight:700;letter-spacing:.12em;color:var(--navy);background:linear-gradient(135deg,#D4AF37,#C5A059);border:none;padding:.5rem 1.1rem;border-radius:.375rem;cursor:pointer;box-shadow:0 0 20px rgba(212,175,55,.4),0 2px 8px rgba(0,0,0,.3);transition:all .2s;white-space:nowrap}
+.lang-btn:hover{background:linear-gradient(135deg,#F3E5AB,#D4AF37);box-shadow:0 0 30px rgba(212,175,55,.6);transform:translateY(-1px)}
+
+/* ── MAIN ── */
+.main{width:100%;max-width:72rem;padding:0 1.25rem;animation:fadeUp .5s ease-out}
+
+/* ── MIRROR ALERT ── */
+.mirror-alert{border-left:3px solid var(--crimson);background:linear-gradient(90deg,rgba(26,11,14,.95),rgba(17,8,10,.95));color:var(--crimson);padding:.875rem 1.5rem;font-size:.78rem;letter-spacing:.06em;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.75rem;border-radius:0 .375rem .375rem 0;box-shadow:0 4px 20px rgba(230,57,70,.2),inset 0 0 20px rgba(230,57,70,.05)}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2.5rem;border-bottom:1px solid rgba(212,175,55,.18);margin-bottom:2.5rem;overflow-x:auto;padding-bottom:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;padding:0 0 1rem;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .3s;margin-bottom:-1px}
+.tab-g   {border-bottom-color:var(--gold);color:var(--gold);font-weight:700;animation:tab-shine 3s ease-in-out infinite}
+.tab-r   {border-bottom-color:var(--crimson);color:var(--crimson);font-weight:700}
+.tab-off {color:rgba(197,160,89,.5)}
+.tab-off:hover{color:var(--cream)}
+.tab-roff{color:rgba(230,57,70,.4)}
+.tab-roff:hover{color:var(--crimson)}
+
+/* ── METEORS (whole-interface backdrop) ── */
+.meteor-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.meteor{
+  position:absolute;width:150px;height:1px;border-radius:1px;opacity:0;
+  background:linear-gradient(90deg,rgba(243,229,171,0) 0%,rgba(243,229,171,.28) 55%,rgba(212,175,55,.6) 100%);
+  filter:drop-shadow(0 0 2px rgba(212,175,55,.35));
+  animation-name:meteor-fall;animation-iteration-count:infinite;animation-timing-function:ease-in;
+}
+@keyframes meteor-fall{
+  0%{transform:translate(0,0) rotate(148deg);opacity:0}
+  6%{opacity:.5}
+  65%{opacity:.2}
+  100%{transform:translate(-55vw,42vh) rotate(148deg);opacity:0}
+}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;padding:1.5rem}
+.login-lang{position:absolute;top:1.5rem;right:1.5rem}
+.login-card{width:100%;max-width:23rem;padding:2.75rem 2.25rem;text-align:center;animation:fadeUp .6s ease-out}
+.login-logo{display:flex;flex-direction:column;align-items:center;gap:1rem;margin-bottom:2rem}
+.login-title{font-family:'Noto Serif SC',serif;font-size:1.35rem;letter-spacing:.16em;color:var(--cream);text-transform:uppercase;text-shadow:0 0 30px rgba(212,175,55,.35)}
+.login-sub{font-size:.72rem;letter-spacing:.06em;color:rgba(197,160,89,.75);margin-top:.5rem;line-height:1.7}
+.login-field{margin-bottom:1.25rem;text-align:left}
+.login-lbl{display:block;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);font-weight:600;margin-bottom:.5rem}
+.login-inp{width:100%;background:rgba(11,19,43,.7);border:1px solid rgba(212,175,55,.28);border-radius:.4rem;padding:.7rem .9rem;color:var(--cream);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .3s,box-shadow .3s}
+.login-inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.12)}
+.login-btn{width:100%;margin-top:.5rem;padding:.85rem;border:none;border-radius:.4rem;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--navy);background:linear-gradient(135deg,#D4AF37,#C5A059);cursor:pointer;box-shadow:0 0 24px rgba(212,175,55,.35),0 4px 12px rgba(0,0,0,.35);transition:all .2s}
+.login-btn:hover{background:linear-gradient(135deg,#F3E5AB,#D4AF37);box-shadow:0 0 32px rgba(212,175,55,.55);transform:translateY(-1px)}
+.login-btn:disabled{opacity:.6;cursor:default;transform:none}
+.login-err{font-size:.65rem;color:var(--crimson);letter-spacing:.04em;margin-top:-.5rem;margin-bottom:1rem;text-align:left}
+.login-note{font-size:.6rem;color:rgba(197,160,89,.55);letter-spacing:.04em;margin-top:1.5rem;line-height:1.6}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:1fr;gap:2rem}
+@media(min-width:1024px){.grid{grid-template-columns:7fr 5fr}}
+
+/* ── CHART ── */
+.chart-hdr{display:flex;justify-content:space-between;padding-bottom:1rem;margin-bottom:2rem;border-bottom:1px solid rgba(212,175,55,.2);width:100%}
+.chart-lbl{font-size:.6rem;letter-spacing:.2em;color:var(--gold2);text-transform:uppercase;font-weight:700}
+.chart-dob{font-family:'Noto Serif SC',serif;font-size:.85rem;letter-spacing:.15em;color:var(--cream);opacity:.9}
+
+/* ── RIGHT COL ── */
+.rcol{display:flex;flex-direction:column;gap:2rem}
+
+/* ── PANEL HEADERS ── */
+.ph     {display:flex;justify-content:space-between;align-items:center;padding-bottom:1rem;margin-bottom:1.5rem;border-bottom:1px solid rgba(212,175,55,.2)}
+.ph-r   {display:flex;justify-content:space-between;align-items:center;padding-bottom:1rem;margin-bottom:2rem;border-bottom:1px solid rgba(230,57,70,.25)}
+.pt     {font-family:'Noto Serif SC',serif;font-size:1rem;color:var(--cream);letter-spacing:.1em}
+.ptg    {font-family:'Noto Serif SC',serif;font-size:1rem;color:var(--gold);letter-spacing:.1em;text-shadow:0 0 20px rgba(212,175,55,.5)}
+.ptr    {font-family:'Noto Serif SC',serif;font-size:1rem;color:var(--crimson);letter-spacing:.1em}
+.ps     {font-size:.6rem;color:rgba(197,160,89,.65);letter-spacing:.12em;text-transform:uppercase}
+.psr    {font-size:.6rem;color:rgba(230,57,70,.55);letter-spacing:.12em;text-transform:uppercase}
+
+/* ── ELEMENTS TABLE ── */
+.etbl{width:100%;text-align:center;border-collapse:collapse}
+.etbl th{padding:.4rem 2px;font-size:.58rem;color:var(--gold2);letter-spacing:.04em;font-weight:500;border-bottom:1px solid rgba(212,175,55,.18);line-height:1.4}
+.etbl .el{font-family:'Noto Serif SC',serif;font-size:1.05rem;color:var(--cream);padding:.75rem 0 .25rem;border-bottom:1px solid rgba(212,175,55,.08)}
+.etbl .ec{font-family:'Noto Serif SC',serif;font-size:1.3rem;font-weight:900;padding:.5rem 0 .25rem}
+.el-bar-wrap{padding:0 6px .75rem}
+.el-bar-bg  {height:3px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden}
+.el-bar-fill{height:100%;border-radius:2px;animation:bar-grow .9s cubic-bezier(.34,1.2,.64,1) both}
+.bm{margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(212,175,55,.1);text-align:center;font-size:.6rem;color:rgba(197,160,89,.7);letter-spacing:.04em}
+
+/* ── MNO ── */
+.mno-text{font-size:.875rem;line-height:2.1;color:rgba(243,229,171,.82);margin-bottom:1rem}
+.mno-lbl {font-family:'Noto Serif SC',serif;font-size:.95rem;font-weight:700;color:var(--cream);margin-right:.4rem}
+.mno-foot{padding-top:1rem;margin-top:.5rem;border-top:1px solid rgba(212,175,55,.2);color:var(--cream);font-size:.875rem;line-height:2.1}
+
+/* ── FATAL ── */
+.f-sec{margin-bottom:1.5rem}
+.f-ttl{font-size:.6rem;font-weight:700;color:rgba(230,57,70,.8);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.f-ttl::before{content:'';display:block;width:4px;height:4px;border-radius:50%;background:var(--crimson);flex-shrink:0}
+.f-txt{font-size:.85rem;line-height:1.85;color:rgba(243,229,171,.72)}
+
+/* ── YEARLY ── */
+.y-txt {font-family:'Noto Serif SC',serif;font-size:.9rem;line-height:2.2;color:rgba(243,229,171,.92);text-align:justify}
+.y-foot{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid rgba(212,175,55,.18);font-size:.6rem;color:rgba(197,160,89,.75);letter-spacing:.04em;line-height:1.8}
+
+/* ── EMPTY STATE ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6rem 2rem;text-align:center;gap:1.5rem}
+.empty-sym{font-family:'Noto Serif SC',serif;font-size:3.5rem;color:var(--gold);opacity:.25;letter-spacing:.3em}
+.empty-txt{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold2);opacity:.5}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* Star field — runs before React */
+(function(){
+  var sf=document.createElement('div');
+  sf.style.cssText='position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;';
+  for(var i=0;i<85;i++){
+    var s=document.createElement('div');
+    var big=Math.random()>.86;
+    var sz=big?2:1;
+    s.style.cssText='position:absolute;border-radius:50%;'
+      +'width:'+sz+'px;height:'+sz+'px;'
+      +'background:rgba('+(big?'212,175,55':'243,229,171')+','+(0.18+Math.random()*.5).toFixed(2)+');'
+      +'left:'+(Math.random()*100).toFixed(2)+'%;'
+      +'top:'+(Math.random()*100).toFixed(2)+'%;'
+      +'animation:twinkle '+(2+Math.random()*5).toFixed(1)+'s ease-in-out '+(Math.random()*7).toFixed(1)+'s infinite;';
+    sf.appendChild(s);
+  }
+  document.body.prepend(sf);
+
+  /* Meteor field — sparse, slow, faint gold streaks across the whole page */
+  var mf=document.createElement('div');
+  mf.className='meteor-layer';
+  var count=3;
+  for(var j=0;j<count;j++){
+    var m=document.createElement('div');
+    m.className='meteor';
+    var top=(Math.random()*40).toFixed(1);
+    var left=(30+Math.random()*55).toFixed(1);
+    var dur=(11+Math.random()*9).toFixed(1);
+    var delay=(Math.random()*18).toFixed(1);
+    m.style.top=top+'%';
+    m.style.left=left+'%';
+    m.style.animationDuration=dur+'s';
+    m.style.animationDelay=delay+'s';
+    mf.appendChild(m);
+  }
+  document.body.prepend(mf);
+})();
+</script>
+
+<script>
+'use strict';
+const e=React.createElement;
+const {useState,useEffect,useMemo}=React;
+
+/* ── ACCESS CONTROL — email allowlist ──
+   Access is controlled by a Google Sheet, not a password. Only emails you've
+   listed yourself (in the "Allowed" tab) can get past the login screen.
+   Every attempt — allowed or denied — is also logged to the "Logins" tab.
+
+   SET UP THE SHEET SIDE ONCE:
+   See google-apps-script-logger.js for the Apps Script that reads the
+   allowlist and writes the log. Deploy it as a Web App and paste the
+   /exec URL into LOG_WEBHOOK_URL below.
+
+   HOW TO MANAGE ACCESS DAY-TO-DAY:
+   Open the Google Sheet → "Allowed" tab → add or remove an email in
+   column A → save. That's it, no code changes, no redeploy.
+
+   If you keep seeing "network error" here even with a correct email,
+   90% of the time it's one of these — check in this order:
+     1. Open LOG_WEBHOOK_URL + "?email=you@example.com" directly in a
+        browser. It must return raw JSON like {"allowed":true,...}.
+        If instead you see a Google sign-in page or "Script function
+        not found: doGet", the deployment is stale or misconfigured.
+     2. In Apps Script → Deploy → Manage deployments → edit the active
+        deployment → "Who has access" must be "Anyone" (not "Anyone
+        with Google account").
+     3. After any code change, you must create a "New version" under
+        Manage deployments (or a brand-new deployment) — saving the
+        script alone does NOT update the live /exec endpoint.
+*/
+const LOG_WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxQiAwUeHvhelSMXiz6xrA8NfuJI12rcZUdvgSCo-5yhHZK8-0yCXXj35tRC6isPW0z/exec';
+
+function checkEmailAllowed(email,cb){
+  if(!LOG_WEBHOOK_URL){cb(false,true);return;}
+  const url=LOG_WEBHOOK_URL
+    +'?email='+encodeURIComponent(email)
+    +'&ua='+encodeURIComponent(navigator.userAgent);
+  const hasAbort=typeof AbortController!=='undefined';
+  const controller=hasAbort?new AbortController():null;
+  const timer=setTimeout(()=>{if(controller)controller.abort();},10000);
+  fetch(url,controller?{signal:controller.signal,cache:'no-store'}:{cache:'no-store'})
+    .then(r=>r.json())
+    .then(data=>{clearTimeout(timer);cb(!!(data&&data.allowed),false);})
+    .catch(err=>{clearTimeout(timer);console.error('checkEmailAllowed failed:',err);cb(false,true);});
+}
+
+/* ── numerology ── */
+const reduceNum=n=>{if(n===0)return 5;const r=n%9;return r===0?9:r};
+const calcNodes=str=>{
+  const d=str.split('').map(Number);
+  const [A,B,C,D,E,F,G,H]=d;
+  const I=reduceNum(A+B),J=reduceNum(C+D),K=reduceNum(E+F),L=reduceNum(G+H);
+  const M=reduceNum(I+J),N=reduceNum(K+L),O=reduceNum(M+N);
+  const T=reduceNum(I+M),U=reduceNum(J+M),V=reduceNum(T+U);
+  const W=reduceNum(K+N),X=reduceNum(L+N),Y=reduceNum(W+X);
+  const P=reduceNum(M+O),Q=reduceNum(N+O),R=reduceNum(P+Q);
+  return{A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,T,U,V,W,X,Y,P,Q,R,s:str};
+};
+
+/* ── i18n ── */
+const i18n={
+  zh:{
+    title:'星财生命数字',dobLabel:'Date of Birth',langToggle:'EN / 中文',
+    loginTitle:'星财生命数字',loginSub:'请输入邮箱以验证访问权限',
+    emailLabel:'邮箱',enterBtn:'进入命盘',verifying:'正在验证权限...',
+    loginErr:'请输入邮箱',loginNotAllowed:'此邮箱尚未获得访问权限，请联系管理员开通',
+    loginNetErr:'网络异常，请稍后重试',
+    loginNote:'* 访问权限由白名单邮箱控制，如需开通请联系星财团队',
+    mirrorAlert:'系统侦测：镜像格局触发，检测到深层潜意识冲突，已为您解锁隐形盘解析。',
+    mirrorTag:'Mirror Pattern',
+    tabNatal:'本命盘分析 / Natal',tabYearly:'流年运程 / Yearly',tabHidden:'隐形潜意识 / Hidden',
+    chartNatal:'Natal Chart',chartYearly:'Yearly Chart',chartHidden:'Hidden Chart',
+    elementsTitle:'五行能量场',elementsSub:'Elements Matrix',
+    elementsBenchmark:'⚖️ 能量平衡基准点 (Benchmark) : 4 - 3 - 3 - 3 - 3',
+    elementsCols:['自身能力','财务/子女','事业/伴侣','官鬼/疾病','父母/贵人'],
+    elementsArr:['木','火','土','金','水'],
+    mnoTitle:'深层潜意识剖析',innerM:'内在动机',outerN:'行为模式',
+    fatalTitle:'核心风控报告',fatalSub:'Fatal Warnings',
+    fatalWealth:'财富壁垒 / Wealth',fatalLove:'情感死穴 / Relationship',fatalHealth:'健康预警 / Health',
+    yearlyTitle:'流年运程分析',yearlySub:'Year',
+    yearlyInsight:'Insight: 运程仅代表流年磁场的风向，顺势而为方能借力打力，切勿以固执的主观对抗规律。',
+    emptyHint:'请输入出生日期以开始分析',
+    traits:{
+      inner:{1:'渴望独立主导与绝对的自主权',2:'注重和谐、配合与人际间的情感连接',3:'充满热情、表达欲与破坏性创造力',4:'极度追求安全感、条理与系统稳定',5:'向往绝对的自由、变动与不被束缚',6:'内心充满责任感、追求完美与疗愈',7:'充满求知欲、擅长逻辑剖析与质疑',8:'渴望掌控全局、追求权力和大格局财富',9:'怀抱大爱、理想主义与无私的奉献精神'},
+      outer:{1:'雷厉风行、独当一面的开创风格',2:'善于借力打力、温和周旋的辅助手段',3:'积极主动、极具感染力的行动派',4:'步步为营、稳扎稳打的保守策略',5:'灵活变通、不拘一格的市场敏锐度',6:'要求完美、尽心尽责的交付标准',7:'谋定而后动、精准切入的分析手腕',8:'大开大合、目标导向的狼性执行力',9:'包容万象、随缘随性且多才多艺的方式'},
+      root:{1:'创世者',2:'沟通者',3:'行动者',4:'策划者',5:'方向者',6:'财富者',7:'人缘者',8:'责任者',9:'成功者'}
+    },
+    insights:{
+      1:{wealth:'你最大的瓶颈是无法信任他人。凡事亲力亲为只会让你永远是个体户。学会分钱、放权，是你破局的关键。',love:'极度自我中心，容易让伴侣感到窒息。你的沟通往往是"通知"而不是"商量"。',health:'心血管系统负荷大，易患偏头痛及心脏问题。'},
+      2:{wealth:'缺乏决断力容易错失商机。不要试图讨好所有人，你需要绑定一个极其强势的合伙人替你做恶人。',love:'无底线的妥协换不来爱，只会换来得寸进尺。你需要具备"被讨厌的勇气"。',health:'呼吸系统脆弱，免疫力易低下。'},
+      3:{wealth:'热情来得快去得也快，冲动投资是致命伤。破坏力惊人，需要强有力的落地执行团队帮你收拾残局。',love:'脾气暴躁，口无遮拦。经常用最伤人的话攻击最亲密的人。',health:'肝火旺盛，注意肝脏保养及烫伤。'},
+      4:{wealth:'过度追求安全感导致极度保守。打破条条框框，接受一定程度的风险，才能跨越阶层。',love:'控制欲强且生性多疑。你对伴侣的不信任，往往会自我实现。',health:'骨骼关节问题，尤需注意脊椎和慢性疲劳。'},
+      5:{wealth:'博而不精是最大问题。什么都懂一点但无法变现。选定一个赛道深耕三年，绝不频繁跳槽。',love:'极度渴望自由，害怕承诺。容易让伴侣极度缺乏安全感。',health:'呼吸道及神经系统敏感，焦虑引发失眠。'},
+      6:{wealth:'完美主义让你迟迟无法交付结果。先完成再完美。警惕因过度同情他人导致的财务损耗。',love:'你的爱往往带有强烈的"控制性"和"期待回报"，容易陷入内耗心态。',health:'肩颈酸痛，关注免疫系统及生殖健康。'},
+      7:{wealth:'极其聪明但过于多疑。过度分析会导致行动迟缓。放下高傲，学会用人情世故润滑商业逻辑。',love:'冷暴力的高手。习惯性逃避和关上心门，让伴侣仿佛面对一堵冰墙。',health:'水分代谢较差，注意肾脏及内分泌。'},
+      8:{wealth:'权力欲极重，高压政策短期见效但长期必遭背叛。学会"藏拙"和"让利"。',love:'将事业的掌控欲带入家庭，极度压抑自己的真实情感，不懂示弱。',health:'高压导致的隐性疾病，心脑血管突发危险度高。'},
+      9:{wealth:'想法多如牛毛，落地少之又少。容易被宏大概念洗脑，必须有务实的执行者帮你管钱。',love:'泛滥的爱心导致界限不清。可能对所有人都好，唯独忽略伴侣。',health:'脑部疲劳，易有神经衰弱及意外皮肉伤。'}
+    },
+    yearlyInsights:{
+      1:'播种与开创期。全新九年循环的开端。过去的包袱已清空，今年绝对适合创业、换工作、开启新计划。不要犹豫，勇敢跨出第一步，今年的种子将决定未来九年的收成规模。',
+      2:'蛰伏与合作期。相较于去年的冲刺，今年需放慢脚步。重点是"借力"和"结盟"。多去配合他人，拓展人脉，处理感情问题。切忌单打独斗和情绪化做重大决定。',
+      3:'行动与分享期。非常活跃且动荡的一年。你会充满表达欲，一定要多加分享、演讲、做营销，走到人群中去传播你的理念。注意控制脾气，冲动极易破财。',
+      4:'扎根与稳定期。经过前期的变动，今年重点是"求稳"和"扎根"。非常适合买房置产、建立公司系统、进修考证。绝对不要做高风险投机，守住基本盘就是胜利。',
+      5:'繁茂与巨变期。大破大立之年。会有强烈的自由渴望与意外的方向转变，甚至桃花泛滥或跨界机会频发。大胆拥抱变化，打破沉闷，走出去见大世面。',
+      6:'开花与责任期。财运显现之年，也是承担责任之年。重心必须回归家庭、团队建设或健康疗愈。会有大笔金钱进出，学会用钱解决问题，对身边人多一份包容。',
+      7:'结果与贵人期。整理资源、反思沉淀的绝佳时机。会有贵人相助，但也极易遇到人际关系和感情的深度考验。凡事多思考，运用智慧而非蛮力。',
+      8:'丰收与权力期。九年循环中财富和事业的巅峰。全力以赴搞事业，展现领导力。但同时压力巨大，注意心血管健康，切忌过度贪婪导致反噬。',
+      9:'休息与重置期。一个循环的终点。今年唯一的主旋律是"断舍离"。清理掉不赚钱的项目和消耗你的人际关系。多做公益，让身心归零。绝不要在今年开启重大新项目。'
+    }
+  },
+  en:{
+    title:'StellarCai Numerology',dobLabel:'Date of Birth',langToggle:'中文 / EN',
+    loginTitle:'StellarCai',loginSub:'Enter your email to verify access',
+    emailLabel:'Email',enterBtn:'Enter Chart',verifying:'Verifying access...',
+    loginErr:'Please enter your email',loginNotAllowed:'This email is not yet approved for access — contact the site owner',
+    loginNetErr:'Network error, please try again',
+    loginNote:'* Access is controlled by an approved email list — contact us to get added',
+    mirrorAlert:'System Alert: Mirror Pattern detected. Deep subconscious conflicts identified. Hidden Chart unlocked.',
+    mirrorTag:'Mirror Pattern',
+    tabNatal:'Natal Chart',tabYearly:'Yearly Cycle',tabHidden:'Hidden Subconscious',
+    chartNatal:'Natal Chart',chartYearly:'Yearly Chart',chartHidden:'Hidden Chart',
+    elementsTitle:'Elements Matrix',elementsSub:'Energy Field',
+    elementsBenchmark:'⚖️ Energy Balance Benchmark : 4 - 3 - 3 - 3 - 3',
+    elementsCols:['Self','Wealth/Child','Career/Spouse','Status/Health','Benefactor'],
+    elementsArr:['Wood','Fire','Earth','Metal','Water'],
+    mnoTitle:'Subconscious Decode',innerM:'Inner Motive',outerN:'Action Pattern',
+    fatalTitle:'Core Risk Report',fatalSub:'Fatal Warnings',
+    fatalWealth:'Wealth Barrier',fatalLove:'Relationship Flaw',fatalHealth:'Health Warning',
+    yearlyTitle:'Yearly Analysis',yearlySub:'Year',
+    yearlyInsight:'Insight: The yearly cycle represents environmental momentum. Ride the wave; do not resist the natural laws with stubborn subjectivity.',
+    emptyHint:'Enter your date of birth to begin',
+    traits:{
+      inner:{1:'desires absolute independence and dominance',2:'values harmony, cooperation, and emotional connection',3:'is full of passion, expression, and destructive creativity',4:'seeks ultimate security, order, and systemic stability',5:'yearns for absolute freedom, change, and zero constraints',6:'is driven by responsibility, perfection, and healing',7:'possesses a thirst for knowledge, logic, and skepticism',8:'desires control over the big picture and monumental wealth',9:'holds a grand vision, idealism, and selfless dedication'},
+      outer:{1:'a swift, pioneering, and commanding approach',2:'a gentle, diplomatic, and leveraging strategy',3:'a highly proactive and infectious execution',4:'a cautious, step-by-step, and conservative method',5:'a flexible, unconventional, and market-sensitive style',6:'a demanding, perfectionist, and responsible standard',7:'a calculated, analytical, and highly precise tactic',8:'an aggressive, goal-oriented, and wolf-like execution',9:'an inclusive, adaptable, and multi-talented manner'},
+      root:{1:'Pioneer',2:'Diplomat',3:'Catalyst',4:'Architect',5:'Maverick',6:'Nurturer',7:'Analyst',8:'Commander',9:'Visionary'}
+    },
+    insights:{
+      1:{wealth:'Your bottleneck is trust. Doing everything yourself keeps you a small operator. Learn to delegate and share profits.',love:'Extreme egocentrism makes partners feel suffocated. You dictate rather than communicate.',health:'High cardiovascular load. Prone to migraines and heart issues.'},
+      2:{wealth:'Indecision costs you opportunities. Stop pleasing everyone; you need a strong, assertive partner.',love:'Bottomless compromises invite betrayal, not love. You need the courage to be disliked.',health:'Vulnerable respiratory system and low immunity.'},
+      3:{wealth:'Impulsive investments are your fatal flaw. You need a strong execution team to clean up after your ideas.',love:'Explosive temper. You use the sharpest words to attack those closest to you.',health:'Excessive liver fire. Watch out for burns and liver maintenance.'},
+      4:{wealth:'Over-conservatism limits your growth. Break the rules and take calculated risks.',love:"Strong desire for control and suspicion. Your distrust often becomes a self-fulfilling prophecy.",health:'Skeletal and joint issues. Pay attention to spine and chronic fatigue.'},
+      5:{wealth:'Jack of all trades, master of none. Focus deeply on one industry for 3 years.',love:'Extreme fear of commitment makes partners deeply insecure.',health:'Sensitive respiratory and nervous systems. Anxiety leads to insomnia.'},
+      6:{wealth:'Perfectionism delays delivery. Done is better than perfect. Beware of financial drain from misplaced sympathy.',love:'Your love carries strong control and expectations of return, easily leading to resentment.',health:'Neck and shoulder pain. Monitor immune and reproductive health.'},
+      7:{wealth:'Over-analysis causes paralysis. Drop your arrogance and use social skills to lubricate business logic.',love:'Master of cold silence. You habitually shut down, leaving your partner facing a wall of ice.',health:'Poor water metabolism. Watch kidneys and endocrine system.'},
+      8:{wealth:'Extreme lust for power leads to long-term betrayal. Learn to hide your edge and share the wealth.',love:'You bring your desire for control into the family, suppressing true emotions and never showing vulnerability.',health:'Stress-induced hidden diseases. High risk of cardiovascular emergencies.'},
+      9:{wealth:'A million ideas, zero execution. You need a pragmatic executor to manage finances.',love:'Overflowing compassion blurs boundaries. You may be kind to everyone but neglect your partner.',health:'Mental exhaustion. Prone to nervous breakdowns and physical injuries.'}
+    },
+    yearlyInsights:{
+      1:'Sowing & Pioneering. The start of a new 9-year cycle. Past burdens are cleared; this year is perfect for starting a business, changing jobs, or launching new plans. Take the first step bravely — the seeds planted this year determine the harvest for the next nine years.',
+      2:"Dormancy & Cooperation. Slow down compared to last year's sprint. The focus is on leveraging and forming alliances. Cooperate with others, expand your network, and handle relationships. Avoid working alone or making emotional decisions.",
+      3:'Action & Sharing. A highly active and turbulent year. You will have a strong desire to express yourself. Share, speak, market, and spread your ideas to the crowd. Control your temper — impulsiveness leads to financial loss.',
+      4:'Rooting & Stability. After previous changes, the focus is on stability. Excellent for buying property, building systems, or further education. Absolutely avoid high-risk speculation; securing your base is the victory.',
+      5:"Flourishing & Upheaval. A year of massive breakthroughs. You'll feel a strong desire for freedom, unexpected direction shifts, or abundant cross-industry opportunities. Boldly embrace change and explore the world.",
+      6:'Blooming & Responsibility. Wealth manifests, but so do responsibilities. Focus must return to family, team building, or health healing. Large sums of money will flow; learn to use money to solve problems.',
+      7:'Fruiting & Benefactors. Perfect time for deep reflection. Benefactors will help, but you will also face profound relationship tests. Think deeply; use wisdom, not brute force.',
+      8:'Harvest & Power. The pinnacle of wealth and career in the 9-year cycle. Go all out for business and show leadership. However, pressure is immense; monitor cardiovascular health and avoid excessive greed.',
+      9:'Rest & Reset. The end of the cycle. The sole theme is decluttering. Clear out unprofitable projects and draining relationships. Do charity to reset your mind and body. Do NOT start major new projects this year.'
+    }
+  }
+};
+
+/* ── TabIcon ── */
+const TabIcon=({type})=>{
+  if(type==='natal')return e('svg',{viewBox:'0 0 24 24',width:14,height:14,style:{flexShrink:0}},
+    e('circle',{cx:12,cy:12,r:7.5,stroke:'currentColor',strokeWidth:1.3,fill:'none'}),
+    e('circle',{cx:12,cy:12,r:1.4,fill:'currentColor'}),
+    e('path',{d:'M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.8 5.8l1.7 1.7M16.5 16.5l1.7 1.7M5.8 18.2l1.7-1.7M16.5 7.5l1.7-1.7',stroke:'currentColor',strokeWidth:1.1,strokeLinecap:'round'})
+  );
+  if(type==='yearly')return e('svg',{viewBox:'0 0 24 24',width:14,height:14,style:{flexShrink:0}},
+    e('path',{d:'M4.5 12a7.5 7.5 0 0113-5M19.5 12a7.5 7.5 0 01-13 5',stroke:'currentColor',strokeWidth:1.5,fill:'none',strokeLinecap:'round'}),
+    e('path',{d:'M17.2 3.8v4h-4M6.8 20.2v-4h4',stroke:'currentColor',strokeWidth:1.5,fill:'none',strokeLinecap:'round',strokeLinejoin:'round'})
+  );
+  return e('svg',{viewBox:'0 0 24 24',width:14,height:14,style:{flexShrink:0}},
+    e('path',{d:'M12 2.5L19.5 7v10L12 21.5 4.5 17V7L12 2.5Z',stroke:'currentColor',strokeWidth:1.3,fill:'none'}),
+    e('line',{x1:12,y1:2.5,x2:12,y2:21.5,stroke:'currentColor',strokeWidth:1.1,strokeDasharray:'2 2.4'})
+  );
+};
+
+/* ── SvgBox ── */
+const SvgBox=({x,y,num})=>e('g',null,
+  e('rect',{x:x-18,y:y-20,width:36,height:40,className:'cls',fill:'#0B132B'}),
+  e('text',{x,y:y+2,className:'ct'},num)
+);
+
+/* ── Login ── */
+const Login=({lang,setLang,t,onSuccess})=>{
+  const [email,setEmail]=useState('');
+  const [err,setErr]=useState('');
+  const [loading,setLoading]=useState(false);
+  const [imgErr,setImgErr]=useState(false);
+
+  const submit=ev=>{
+    ev.preventDefault();
+    const em=email.trim();
+    if(!em){setErr(t.loginErr);return;}
+    setErr('');
+    setLoading(true);
+    checkEmailAllowed(em,(allowed,networkErr)=>{
+      setLoading(false);
+      if(networkErr){setErr(t.loginNetErr);return;}
+      if(!allowed){setErr(t.loginNotAllowed);return;}
+      onSuccess();
+    });
+  };
+
+  return e('div',{className:'login-wrap'},
+    e('button',{className:'lang-btn login-lang',onClick:()=>setLang(lang==='zh'?'en':'zh')},t.langToggle),
+    e('div',{className:'panel login-card'},
+      e('div',{className:'login-logo'},
+        !imgErr
+          ? e('img',{src:'STELLAR CAI LOGO- BRIGHT.png',alt:'Stellar Cai Logo',
+              style:{height:'4rem',width:'auto',objectFit:'contain',mixBlendMode:'screen'},
+              onError:()=>setImgErr(true)})
+          : e('div',{className:'logo-fb',style:{height:'4.5rem',width:'4.5rem'}},
+              e('span',{className:'logo-char'},'星'),
+              e('span',{className:'logo-char'},'财')
+            ),
+        e('div',null,
+          e('h1',{className:'login-title'},t.loginTitle),
+          e('p',{className:'login-sub'},t.loginSub)
+        )
+      ),
+      e('form',{onSubmit:submit},
+        e('div',{className:'login-field'},
+          e('label',{className:'login-lbl'},t.emailLabel),
+          e('input',{className:'login-inp',type:'email',value:email,autoComplete:'email',
+            onChange:ev=>setEmail(ev.target.value),placeholder:'you@example.com'})
+        ),
+        err?e('p',{className:'login-err'},err):null,
+        e('button',{className:'login-btn',type:'submit',disabled:loading},loading?t.verifying:t.enterBtn)
+      ),
+      e('p',{className:'login-note'},t.loginNote)
+    )
+  );
+};
+
+/* ── App ── */
+const App=()=>{
+  const [loggedIn,setLoggedIn]=useState(false);
+  const [dob,  setDob  ]=useState('01011984');
+  const [lang, setLang ]=useState('zh');
+  const [tab,  setTab  ]=useState('natal');
+  const [imgErr,setImgErr]=useState(false);
+  const [natal, setNatal ]=useState(null);
+  const [yearly,setYearly]=useState(null);
+  const [hidden,setHidden]=useState(null);
+  const yr=new Date().getFullYear();
+
+  useEffect(()=>{
+    if(!/^\d{8}$/.test(dob))return;
+    const n=calcNodes(dob);
+    setNatal(n);
+    setYearly(calcNodes(dob.slice(0,4)+yr));
+    if(n.M===n.N){
+      const mir=x=>x===5?5:(x>5?x-5:x+5);
+      setHidden(calcNodes('0'+mir(n.I)+'0'+mir(n.J)+'0'+mir(n.K)+'0'+mir(n.L)));
+    } else {
+      setHidden(null);
+      if(tab==='hidden')setTab('natal');
+    }
+  },[dob,yr]);
+
+  const cur=useMemo(()=>{
+    if(tab==='yearly')return yearly;
+    if(tab==='hidden')return hidden;
+    return natal;
+  },[tab,natal,yearly,hidden]);
+
+  const elems=useMemo(()=>{
+    if(!cur)return null;
+    const nums=[cur.I,cur.J,cur.K,cur.L,cur.M,cur.N,cur.O,cur.T,cur.U,cur.V,cur.W,cur.X,cur.Y,cur.P,cur.Q,cur.R];
+    const cnt={'金':0,'水':0,'火':0,'木':0,'土':0};
+    nums.forEach(n=>{
+      if([1,6].includes(n))cnt['金']++;
+      else if([2,7].includes(n))cnt['水']++;
+      else if([3,8].includes(n))cnt['火']++;
+      else if([4,9].includes(n))cnt['木']++;
+      else cnt['土']++;
+    });
+    let ri=0;
+    if([4,9].includes(cur.O))ri=0;
+    else if([3,8].includes(cur.O))ri=1;
+    else if([5].includes(cur.O))ri=2;
+    else if([1,6].includes(cur.O))ri=3;
+    else ri=4;
+    const t=i18n[lang];
+    return t.elementsCols.map((role,i)=>{
+      const orig=['木','火','土','金','水'][(ri+i)%5];
+      return{role,el:t.elementsArr[(ri+i)%5],count:cnt[orig]};
+    });
+  },[cur,lang]);
+
+  const isMirror=natal&&natal.M===natal.N;
+  const t=i18n[lang];
+
+  if(!loggedIn){
+    return e(Login,{lang,setLang,t,onSuccess:()=>setLoggedIn(true)});
+  }
+
+  /* ── shared header ── */
+  const hdr=e('div',{className:'hdr'},
+    e('div',{className:'hdr-inner'},
+      e('div',{className:'hdr-left'},
+        !imgErr
+          ? e('img',{src:'STELLAR CAI LOGO- BRIGHT.png',alt:'Stellar Cai Logo',
+              style:{height:'4rem',width:'auto',objectFit:'contain',mixBlendMode:'screen'},
+              onError:()=>setImgErr(true)})
+          : e('div',{className:'logo-fb'},
+              e('span',{className:'logo-char'},'星'),
+              e('span',{className:'logo-char'},'财')
+            ),
+        e('h1',{className:'site-title'},t.title)
+      ),
+      e('div',{className:'hdr-right'},
+        e('div',{className:'dob-wrap'},
+          e('span',{className:'dob-lbl'},t.dobLabel),
+          e('input',{type:'text',value:dob,placeholder:'DDMMYYYY',className:'dob-inp',
+            onChange:ev=>setDob(ev.target.value.replace(/\D/g,'').slice(0,8))})
+        ),
+        e('button',{className:'lang-btn',onClick:()=>setLang(lang==='zh'?'en':'zh')},t.langToggle)
+      )
+    )
+  );
+
+  if(!natal||!cur){
+    return e('div',{className:'app'},
+      hdr,
+      e('div',{className:'empty'},
+        e('div',{className:'empty-sym'},'✦ ✦ ✦'),
+        e('p',{className:'empty-txt'},t.emptyHint)
+      )
+    );
+  }
+
+  const chartLabel=tab==='natal'?t.chartNatal:tab==='yearly'?(t.chartYearly+' ['+yr+']'):t.chartHidden;
+  const isNH=tab==='natal'||tab==='hidden';
+
+  /* ── right column ── */
+  const rightContent=isNH
+    ? e('div',{style:{display:'flex',flexDirection:'column',gap:'2rem'}},
+        /* MNO */
+        e('div',{className:'panel',style:{padding:'2rem'}},
+          e('div',{className:'ph'},
+            e('h2',{className:'ptg'},t.mnoTitle),
+            e('span',{style:{fontFamily:'Noto Serif SC,serif',fontSize:'.875rem',color:'#D4AF37',letterSpacing:'.1em'}},
+              cur.M+' · '+cur.N+' · '+cur.O)
+          ),
+          e('p',{className:'mno-text'},e('span',{className:'mno-lbl'},t.innerM+' ['+cur.M+']'),
+            lang==='zh'?t.traits.inner[cur.M]+'。':t.traits.inner[cur.M]+'.'),
+          e('p',{className:'mno-text'},e('span',{className:'mno-lbl'},t.outerN+' ['+cur.N+']'),
+            lang==='zh'?'但在落实行动时，往往采取'+t.traits.outer[cur.N]+'。':'But in execution, adopts '+t.traits.outer[cur.N]+'.'),
+          e('p',{className:'mno-foot'},
+            lang==='zh'?'两股能量交织，造就了独一无二的':'These energies entwine to create a unique',
+            e('strong',{style:{fontFamily:'Noto Serif SC,serif',fontSize:'1.1rem',color:'#E63946',padding:'0 .5rem'}},
+              cur.O+' '+(lang==='zh'?'号':'-')+' '+t.traits.root[cur.O]),
+            lang==='zh'?'特质。':'trait.')
+        ),
+        /* Fatal */
+        e('div',{className:'panel-fatal',style:{padding:'2rem'}},
+          e('div',{className:'ph-r'},
+            e('h2',{className:'ptr'},t.fatalTitle),
+            e('span',{className:'psr'},t.fatalSub)
+          ),
+          e('div',{className:'f-sec'},e('h3',{className:'f-ttl'},t.fatalWealth),e('p',{className:'f-txt'},t.insights[cur.O].wealth)),
+          e('div',{className:'f-sec'},e('h3',{className:'f-ttl'},t.fatalLove),  e('p',{className:'f-txt'},t.insights[cur.O].love)),
+          e('div',{className:'f-sec'},e('h3',{className:'f-ttl'},t.fatalHealth),e('p',{className:'f-txt'},t.insights[cur.O].health))
+        )
+      )
+    : /* Yearly */
+      e('div',{className:'panel-yearly',style:{padding:'2rem'}},
+        e('div',{className:'ph'},
+          e('h2',{className:'pt'},t.yearlyTitle),
+          e('span',{style:{fontFamily:'Noto Serif SC,serif',fontSize:'1rem',color:'#D4AF37',letterSpacing:'.1em'}},
+            t.yearlySub+' '+cur.O)
+        ),
+        e('p',{className:'y-txt'},t.yearlyInsights[cur.O]),
+        e('div',{className:'y-foot'},t.yearlyInsight)
+      );
+
+  return e('div',{className:'app'},
+    hdr,
+    e('div',{className:'main'},
+      /* Mirror */
+      isMirror&&e('div',{className:'mirror-alert'},
+        e('span',null,t.mirrorAlert),
+        e('span',{style:{fontFamily:'Noto Serif SC,serif',fontStyle:'italic',color:'rgba(230,57,70,.8)'}},t.mirrorTag)
+      ),
+      /* Tabs */
+      e('div',{className:'tabs'},
+        e('button',{className:'tab '+(tab==='natal'?'tab-g':'tab-off'),onClick:()=>setTab('natal')},
+          e(TabIcon,{type:'natal'}),t.tabNatal),
+        e('button',{className:'tab '+(tab==='yearly'?'tab-g':'tab-off'),onClick:()=>setTab('yearly')},
+          e(TabIcon,{type:'yearly'}),t.tabYearly+' ('+yr+')'),
+        isMirror?e('button',{className:'tab '+(tab==='hidden'?'tab-r':'tab-roff'),onClick:()=>setTab('hidden')},
+          e(TabIcon,{type:'hidden'}),t.tabHidden):null
+      ),
+      /* Grid */
+      e('div',{className:'grid'},
+        /* Left: SVG chart */
+        e('div',{className:'panel',style:{padding:'2.5rem',display:'flex',flexDirection:'column',alignItems:'center',overflow:'hidden'}},
+          e('div',{className:'chart-hdr'},
+            e('span',{className:'chart-lbl'},chartLabel),
+            e('span',{className:'chart-dob'},cur.s)
+          ),
+          e('svg',{viewBox:'80 50 640 580',style:{width:'100%',height:'auto'}},
+            e('defs',null,
+              e('radialGradient',{id:'chartBg',cx:'50%',cy:'65%',r:'55%'},
+                e('stop',{offset:'0%',stopColor:'rgba(212,175,55,0.07)'}),
+                e('stop',{offset:'100%',stopColor:'transparent'})
+              )
+            ),
+            e('rect',{x:80,y:50,width:640,height:580,fill:'url(#chartBg)'}),
+            e('g',{className:'cl'},
+              e('line',{x1:160,y1:140,x2:640,y2:140}),
+              e('line',{x1:160,y1:140,x2:400,y2:460}),
+              e('line',{x1:640,y1:140,x2:400,y2:460}),
+              e('line',{x1:250,y1:260,x2:550,y2:260}),
+              e('line',{x1:325,y1:360,x2:475,y2:360}),
+              e('line',{x1:270,y1:140,x2:270,y2:260}),
+              e('line',{x1:400,y1:140,x2:400,y2:360}),
+              e('line',{x1:530,y1:140,x2:530,y2:260}),
+              e('line',{x1:100,y1:460,x2:700,y2:460,strokeWidth:2})
+            ),
+            e(SvgBox,{key:'A',x:180,y:100,num:cur.A}),e(SvgBox,{key:'B',x:230,y:100,num:cur.B}),
+            e(SvgBox,{key:'C',x:310,y:100,num:cur.C}),e(SvgBox,{key:'D',x:360,y:100,num:cur.D}),
+            e(SvgBox,{key:'E',x:440,y:100,num:cur.E}),e(SvgBox,{key:'F',x:490,y:100,num:cur.F}),
+            e(SvgBox,{key:'G',x:570,y:100,num:cur.G}),e(SvgBox,{key:'H',x:620,y:100,num:cur.H}),
+            e('text',{x:205,y:205,className:'ctlg'},cur.I),
+            e('text',{x:335,y:205,className:'ctlg'},cur.J),
+            e('text',{x:465,y:205,className:'ctlg'},cur.K),
+            e('text',{x:595,y:205,className:'ctlg'},cur.L),
+            e('g',{className:'mn1'},e('text',{x:325,y:315,className:'ctlg',style:{fill:'#D4AF37'}},cur.M)),
+            e('g',{className:'mn2'},e('text',{x:475,y:315,className:'ctlg',style:{fill:'#D4AF37'}},cur.N)),
+            /* O node with pulse rings */
+            e('circle',{cx:400,cy:420,r:56,fill:'none',stroke:'rgba(230,57,70,0.12)',strokeWidth:10,className:'o-r1'}),
+            e('circle',{cx:400,cy:420,r:42,fill:'none',stroke:'rgba(230,57,70,0.22)',strokeWidth:5,className:'o-r2'}),
+            e('circle',{cx:400,cy:420,r:30,fill:'#0B132B',stroke:'#E63946',strokeWidth:2.5}),
+            e('g',{className:'og'},e('text',{x:400,y:420,className:'ctr'},cur.O)),
+            /* bottom row */
+            e(SvgBox,{key:'V',x:120,y:430,num:cur.V}),
+            e('text',{x:160,y:432,className:'ct',fill:'#C5A059'},'='),
+            e(SvgBox,{key:'T',x:200,y:430,num:cur.T}),
+            e(SvgBox,{key:'U',x:250,y:430,num:cur.U}),
+            e(SvgBox,{key:'W',x:550,y:430,num:cur.W}),
+            e(SvgBox,{key:'X',x:600,y:430,num:cur.X}),
+            e('text',{x:640,y:432,className:'ct',fill:'#C5A059'},'='),
+            e(SvgBox,{key:'Y',x:680,y:430,num:cur.Y}),
+            e(SvgBox,{key:'P',x:350,y:510,num:cur.P}),
+            e(SvgBox,{key:'Q',x:450,y:510,num:cur.Q}),
+            e(SvgBox,{key:'R',x:400,y:580,num:cur.R})
+          )
+        ),
+        /* Right col */
+        e('div',{className:'rcol'},
+          /* Elements */
+          e('div',{className:'panel',style:{padding:'2rem'}},
+            e('div',{className:'ph'},
+              e('h2',{className:'pt'},t.elementsTitle),
+              e('span',{className:'ps'},t.elementsSub)
+            ),
+            elems&&e('table',{className:'etbl'},
+              e('thead',null,e('tr',null,elems.map((it,i)=>e('th',{key:i},it.role)))),
+              e('tbody',null,
+                e('tr',null,elems.map((it,i)=>e('td',{key:i,className:'el'},it.el))),
+                e('tr',null,elems.map((it,i)=>e('td',{key:i,className:'ec',style:{
+                  color:it.count===0?'#E63946':it.count>3?'#D4AF37':'#4ADE80'
+                }},it.count))),
+                e('tr',null,elems.map((it,i)=>e('td',{key:i,className:'el-bar-wrap'},
+                  e('div',{className:'el-bar-bg'},
+                    e('div',{className:'el-bar-fill',style:{
+                      width:Math.min(100,Math.round((it.count/6)*100))+'%',
+                      background:it.count===0?'rgba(230,57,70,.65)':it.count>3?'linear-gradient(90deg,#C5A059,#D4AF37)':'rgba(74,222,128,.6)',
+                      animationDelay:(i*.12)+'s'
+                    }})
+                  )
+                )))
+              )
+            ),
+            e('div',{className:'bm'},t.elementsBenchmark)
+          ),
+          rightContent
+        )
+      )
+    )
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(e(App,null));
+</script>
+</body>
+</html>
