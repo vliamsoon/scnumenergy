@@ -46,7 +46,10 @@ export default async function handler(req, res) {
     // is not a browser, so none of the JSONP/CORS/CORB workarounds the
     // client-side code used to need are relevant. redirect:'follow'
     // handles the script.google.com -> script.googleusercontent.com hop.
-    const upstream = await fetch(url, { redirect: 'follow' });
+    const upstream = await fetch(url, {
+      redirect: 'follow',
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; StellarCaiAccessCheck/1.0)' }
+    });
     const text = await upstream.text();
 
     let data;
@@ -54,9 +57,15 @@ export default async function handler(req, res) {
       data = JSON.parse(text);
     } catch (parseErr) {
       // Apps Script returned something that isn't JSON (an error page,
-      // a login redirect, etc.) — treat as denied, but surface a hint
-      // for debugging instead of a silent false.
-      return res.status(200).json({ allowed: false, error: 'bad-upstream-response' });
+      // a login redirect, etc.) — treat as denied, but surface exactly
+      // what came back instead of a silent false so this is debuggable
+      // by just visiting the URL, no server logs needed.
+      return res.status(200).json({
+        allowed: false,
+        error: 'bad-upstream-response',
+        upstreamStatus: upstream.status,
+        upstreamSnippet: text.slice(0, 500)
+      });
     }
 
     return res.status(200).json({ allowed: !!(data && data.allowed) });
